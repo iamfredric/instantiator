@@ -1,0 +1,20 @@
+{
+    "name": "iamfredric/instantiator",
+    "description": "Desc",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Fredric Lovefors",
+            "email": "fredric@panang.se"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Iamfredric\\Instantiator\\": "src"
+        }
+    },
+    "require": {
+        "phpunit/phpunit": "^6.1"
+    }
+}
