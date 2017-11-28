@@ -45,4 +45,47 @@ class ClassresolutionTest extends \PHPUnit\Framework\TestCase
         $this->expectException(\Iamfredric\Instantiator\Exceptions\InstantiationException::class);
         $instantiator->call();
     }
+
+    /** @test */
+    function you_can_specify_bindings()
+    {
+        \Iamfredric\Instantiator\InstantiationsBinder::bind('Loremdolor', IHaveMethods::class);
+        $instantiator = new \Iamfredric\Instantiator\Instantiator('Loremdolor');
+
+        $this->assertInstanceOf(IHaveMethods::class, $instantiator->call());
+    }
+
+    /** @test */
+    function you_can_specify_bindings_as_callbacks()
+    {
+        \Iamfredric\Instantiator\InstantiationsBinder::bind('Model', function () {
+            return 'Model-resolved';
+        });
+
+        $instantiator = new \Iamfredric\Instantiator\Instantiator('Model');
+
+        $this->assertEquals('Model-resolved', $instantiator->call());
+    }
+
+    /** @test */
+    function you_can_specify_parents_bindings()
+    {
+        \Iamfredric\Instantiator\InstantiationsBinder::bind('Modest', function ($class) {
+            return $class::make();
+        });
+
+        $instantiator = new \Iamfredric\Instantiator\Instantiator(User::class);
+
+        $this->assertEquals('user-made', $instantiator->call());
+    }
+
+    /** @test */
+    function you_can_bind_an_interface_to_a_class()
+    {
+        \Iamfredric\Instantiator\InstantiationsBinder::bind(NotInstantiable::class, CanBeInstantiated::class);
+
+        $instantiator = new \Iamfredric\Instantiator\Instantiator(NotInstantiable::class);
+
+        $this->assertInstanceOf(CanBeInstantiated::class, $instantiator->call());
+    }
 }

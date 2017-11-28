@@ -25,7 +25,10 @@ class Instantiator
      */
     public function __construct($classname)
     {
-        $this->reflection = new ReflectionClass($classname);
+        if (! InstantiationsBinder::has($classname)) {
+            $this->reflection = new ReflectionClass($classname);
+        }
+
         $this->classname = $classname;
     }
 
@@ -38,6 +41,18 @@ class Instantiator
      */
     public function call()
     {
+        // If the instance is defined, the instance will be resolved from
+        // defined bindings
+        if (! $this->reflection) {
+            return InstantiationsBinder::resolve($this->classname);
+        }
+
+        // If the parent instance bindings is defined, the instance will be
+        // resolved from parent class bindings
+        if ($this->reflection->getParentClass() and InstantiationsBinder::has($this->reflection->getParentClass()->getName())) {
+            return InstantiationsBinder::resolve($this->reflection->getParentClass()->getName(), $this->classname);
+        }
+
         if (! $this->reflection->isInstantiable()) {
             throw new InstantiationException("Class {$this->classname} cannot be called directly");
         }

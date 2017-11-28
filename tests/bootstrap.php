@@ -45,3 +45,15 @@ class IHaveMethods
     protected function edit()
     {}
 }
+
+abstract class Modest {}
+
+class User extends Modest {
+
+    public static function make()
+    {
+        return 'user-made';
+    }
+}
+
+class CanBeInstantiated implements NotInstantiable {}
