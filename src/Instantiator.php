@@ -9,6 +9,11 @@ use ReflectionMethod;
 class Instantiator
 {
     /**
+     * @var array
+     */
+    private static $bindings = [];
+
+    /**
      * @var ReflectionClass
      */
     protected $reflection;
@@ -33,6 +38,16 @@ class Instantiator
     }
 
     /**
+     * Bind a classname to a custom callable
+     *
+     * @return void
+     */
+    public static function bind($classname, callable $callable)
+    {
+        self::$bindings[$classname] = $callable;
+    }
+
+    /**
      * News up the class object and resolves its dependencies
      *
      * @return object
@@ -45,6 +60,18 @@ class Instantiator
         // defined bindings
         if (! $this->reflection) {
             return InstantiationsBinder::resolve($this->classname);
+        }
+
+        // If the classname i binded, the instance will be resolved from
+        // the defined callable binding
+        if (isset(self::$bindings[$this->classname])) {
+            return self::$bindings[$this->classname]($this->classname);
+        }
+
+        // If the parent classname i binded, the instance will be resolved from
+        // the defined callable binding
+        if ($this->reflection->getParentClass() && isset(self::$bindings[$this->reflection->getParentClass()->getName()])) {
+            return self::$bindings[$this->reflection->getParentClass()->getName()]($this->classname);
         }
 
         // If the parent instance bindings is defined, the instance will be
